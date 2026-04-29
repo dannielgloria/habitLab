@@ -5,9 +5,9 @@ const STORAGE = "habits"; // es const porque el valor no cambiará a lo largo de
 
 //DOM Elements
 const form = document.querySelector("#form"); // seleccionamos el formulario
-const input = document.querySelector("#input"); // seleccionamos el input
+const input = document.querySelector("#name"); // seleccionamos el input
 const energy = document.getElementById("energy"); // seleccionamos el input de energía
-const list = document.getElementById("list"); // seleccionamos la lista donde se mostrarán los hábitos
+const list = document.getElementById("lista"); // seleccionamos la lista donde se mostrarán los hábitos
 
 // Botones
 const btnAll = document.getElementById("all"); // seleccionamos el botón de "All"
@@ -86,14 +86,14 @@ function render() {
 
     list.innerHTML = data.map(habit => {
         return `
-            <div class="">
+            <div class="border p-2 mb-2 flex justify-between">
                 <span>
-                ${habit.name} - ${habit.energy} energy - ${habit.done ? "✅" : "❌"}
+                ${habit.name} - energia: ${habit.energy}  - ${habit.done ? "✅" : "❌"}
                 </span>
 
                 <div>
-                    <button onclick="toggle(${habit.id})" >✅</button>
-                    <button onclick="remove(${habit.id})" >❌</button>
+                    <button onclick="toggle(${habit.id})" class="bg-green-500 text-white px-2 py-1">✅</button>
+                    <button onclick="remove(${habit.id})" class="bg-red-500 text-white px-2 py-1">❌</button>
                 </div>
             </div>
         `;
