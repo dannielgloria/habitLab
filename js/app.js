@@ -1,136 +1,97 @@
 // Variables
-var appName = "Habit Lab";
-let filter = "all"; // es let porque el valor cambiará a lo largo del programa
-const STORAGE = "habits"; // es const porque el valor no cambiará a lo largo del programa
+const APP_NAME = "Habit Lab"; // es const porque el valor no cambiará a la ejecución del programa
 
-//DOM Elements
-const form = document.querySelector("#form"); // seleccionamos el formulario
-const input = document.querySelector("#name"); // seleccionamos el input
-const energy = document.getElementById("energy"); // seleccionamos el input de energía
-const list = document.getElementById("lista"); // seleccionamos la lista donde se mostrarán los hábitos
+const STORAGE = "habits-lab:habits"; // se sentraliza en una constante para evitar errores al escribr texto vaias veces
 
-// Botones
-const btnAll = document.getElementById("all"); // seleccionamos el botón de "All"
-const btnPending = document.getElementById("pending"); // seleccionamos el botón de "Pendientes"
-const btnDone = document.getElementById("done"); // seleccionamos el botón de "Completados"
+// Estado principal de la aplicacion.
+// Se mantiene en un solo objeto para que sea facil saber que datos estan disponibles en la aplicacion y para evitar tener muchas variables sueltas por el codigo.
+const state = {
+    habits: loadhabits(), // cargamos los hábitos del localStorage al iniciar la aplicación con la función loadhabits()
+    currentFilter: "all" // estado del filtro actual en este caso mostrara todos los hábitos, pero puede cambiarse a "pending" o "done"
+};
 
-// Datos (array de objetos o el lugar donde se guardarán los hábitos)
-let habits = load();
+// referencia al DOM
+// Se agrupan todos los elementos en un objeto llamado elements 
+const elements = {
+    form: document.querySelector("#habitForm"), // seleccionamos el formulario
+    habitName: document.querySelector("#habitName"), // seleccionamos el input del nombre del hábito
+    habitEnergy: document.querySelector("#habitEnergy"), // seleccionamos el input de energía del hábito
+    formMessage: document.querySelector("#formMessage"), // seleccionamos el elemento donde se mostrarán los mensajes del formulario
+    habitList: document.querySelector("#habitList"), // seleccionamos la lista donde se mostrarán los hábitos
+    filterButtons: document.querySelectorAll(".filter-btn"), // seleccionamos todos los botones para aplicar los filtros
+    totalCount: document.querySelector("#totalCount"), // seleccionamos el elemento donde se mostrará el conteo total de hábitos
+    pendingCount: document.querySelector("#pendingCount"), // seleccionamos el elemento donde se mostrará el conteo de hábitos pendientes
+    doneCount: document.querySelector("#doneCount") // seleccionamos el elemento donde se mostrará el conteo de hábitos completados
+}
+
+// Inicializar la aplicación
+// Separar la inicializacion para que sea mas facil de entender y para que el código sea mas organizado.
+function init() {
+    bindEvents(); // vinculamos los eventos a los elementos del DOM
+    render(); // renderizamos la lista de hábitos al cargar la página
+
+    console.log(`Bienvenido a ${APP_NAME}`); // mensaje de bienvenida
+}
+
+//Registra los eventos principales de la aplicación
+// Esto evitara tener eventoz mezclados con la lógica de la aplicación y hará que el código sea más organizado y fácil de entender.
+function bindEvents() {
+    elements.form.addEventListener("submit", handleFormSubmit); // evento que escucha si oprime el botón de submit del formulario para agregar un nuevo hábito
+
+    elements.filterButtons.forEach((button) => {
+        button.addEventListener("click", handleFilterClick); // evento que escucha si se hace click en alguno de los botones de filtro para cambiar el estado del filtro actual
+    })
+
+    // Delegacion de eventos:
+    // En lugar de usar un evenyo onclick (es decir que se ejecuta al hacer click en el botón) en el html, 
+    // va a escuchar los clics que esten dentro de el contenedor de la lista de hábitos 
+    // Esto ayuda a que si se tiene que modicar el html, no se tenga que modificar el código js
+    elements.habitList.addEventListener("click", handleHabitAction); // evento que escucha los clics dentro de la lista de hábitos para manejar las acciones de completar o eliminar un hábito
+}
 
 
-// Funciones
-
-// carga los datos del localStorage
-function load() {
-    const data = localStorage.getItem(STORAGE); // guardamos en una variable los datos
-
-    if (!data) {
+// Carga los hábitos del localStorage
+// se usa un try/catch para evitar que la app falle si el almacenamiento tiene datos invalidos
+function loadhabits() {
+    try {
+        const storeHabits = localStorage.getItem(STORAGE); // obtenemos los hábitos almacenados en el localStorage
+        
+        if (!storeHabits) {
+            return []; // si no hay hábitos almacenados, retornamos un array vacío
+        }
+        return JSON.parse(storeHabits);
+    } catch (error) {
+        console.error("No se pudieron cargar los hábitos:", error);
         return [];
     }
-
-    return JSON.parse(data);
 }
 
-// guarda los datos en el localStorage
-function save() {
-    localStorage.setItem(STORAGE, JSON.stringify(habits)); // guardamos los datos en el localStorage
+// Guarda los hábitos actuales en el localStorage
+// Esta funcion centraliza el guardado para no estar repitiendo logica
+function saveHabits() {
+    localStorage.setItem(STORAGE, JSON.stringify(state.habits)); // convertimos el array de hábitos a una cadena JSON y lo guardamos en el localStorage
 }
 
-// guarda habito en arreglo y guarda en localStorage
-function addHabit(name, energy) {
-    const habit = {
-        id: Date.now(), // generamos un id único para cada hábito
-        name: name, // nombre del hábito
-        energy: energy, // energía del hábito
-        done: false // estado del hábito (completado o no)
-    };
-    
-    habits.push(habit); // agregamos el hábito al array de hábitos
-    save(); // guardamos los datos en el localStorage
-    render(); // renderizamos la lista de hábitos
-}
+// funcion para manejar el envio del formulario
+function handleFormSubmit(event) {
+    event.preventDefault(); // evitamos que el formulario se recargue al enviar
 
-// elimina un hábito del arreglo y del localStorage
-function deleteHabit(id) {
-    habits = habits.filter(habit => habit.id !== id); // eliminamos el hábito del array de hábitos
-    save(); // guardamos los datos en el localStorage
-    render(); // renderizamos la lista de hábitos
-}
+    const habitName = elements.habitName.value.trim(); // obtenemos el valor del input del nombre del hábito y eliminamos espacios en blanco
+    const habitEnergy = elements.habitEnergy.value; // obtenemos el valor seleccionado del select de energía del hábito
 
-// obtiene los hábitos filtrados según el estado (all, pending o done)
-function getFiltered() {
-    if (filter === "pending") {
-        return habits.filter(habit => !habit.done);
-    } else if (filter === "done") {
-        return habits.filter(habit => habit.done);
-    } else {
-        return habits;
+    // Validación básica del formulario
+    // evita que se agreguen hábitos sin nombre (evita habitos fantasma)
+    if (!habitName) {
+        showMessage("Escribe el nombre del hábito antes de agregarlo"); // mostramos un mensaje de error si el nombre del hábito está vacío
+        return;
     }
+
+    // Crear un nuevo hábito
+    addhabit(habitName, habitEnergy); // llamamos a la función para agregar un nuevo hábito con el nombre y energía proporcionados
+
+
+    // Limpiar el formulario después de agregar el hábito
+    elements.form.reset(); // reseteamos el formulario para limpiar los campos después de agregar un hábito
+    elements.habitName.focus(); // ponemos el foco de nuevo en el input del nombre del hábito para facilitar la entrada de nuevos hábitos
+    hideMessage(); // ocultamos cualquier mensaje que se haya mostrado anteriormente
 }
-
-//  cambia el estado del hábito (completado o no)
-function toggleHabit(id) {
-    habits = habits.map(habit => {
-        if (habit.id === id) {
-            habit.done = !habit.done; // cambiamos el estado del hábito
-        }
-        return habit;       
-    });
-    save(); // guardamos los datos en el localStorage
-    render(); // renderizamos la lista de hábitos
-}
-
-// renderiza la lista de hábitos
-function render() {
-    const data = getFiltered();
-
-    list.innerHTML = data.map(habit => {
-        return `
-            <div class="border p-2 mb-2 flex justify-between">
-                <span>
-                ${habit.name} - energia: ${habit.energy}  - ${habit.done ? "✅" : "❌"}
-                </span>
-
-                <div>
-                    <button onclick="toggle(${habit.id})" class="bg-green-500 text-white px-2 py-1">✅</button>
-                    <button onclick="remove(${habit.id})" class="bg-red-500 text-white px-2 py-1">❌</button>
-                </div>
-            </div>
-        `;
-    }).join("");
-}
-
-// Eventos
-
-// evento para agregar hábito
-form.addEventListener("submit", (e) => {
-    e.preventDefault(); // evitamos que el formulario se recargue
-
-    addHabit(input.value, energy.value); // agregamos el hábito al array de hábitos
-    
-    form.reset(); // reseteamos el formulario
-});
-
-// eventos para filtrar hábitos
-btnAll.addEventListener("click", () => {
-    filter = "all"; // cambiamos el filtro a "all"
-    render(); // renderizamos la lista de hábitos
-});
-
-btnPending.addEventListener("click", () => {
-    filter = "pending"; // cambiamos el filtro a "pending"
-    render(); // renderizamos la lista de hábitos
-});
-
-btnDone.addEventListener("click", () => {
-    filter = "done"; // cambiamos el filtro a "done"
-    render(); // renderizamos la lista de hábitos
-});
-
-// funciónes globales para botones de inline
-window.toggle = toggleHabit; // hacemos la función toggleHabit global para poder usarla en los botones de inline
-window.remove = deleteHabit; // hacemos la función removeHabit global para poder usarla en los botones de inline
-
-// Init (renderizamos la lista de hábitos al cargar la página)
-console.log(`Bienvenido a ${appName}`); // mensaje de bienvenida
-render(); // renderizamos la lista de hábitos al cargar la página
