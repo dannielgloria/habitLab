@@ -77,22 +77,39 @@
                 <p id="doneCount" class="mt-1 text-2xl font-bold">0</p>
             </article>
         </section>
+
+        <!-- Filtros -->
+        <section class="mt-6">
+             <div class="flex flex-wrap gap-2 items-center justify-center">
+                <button 
+                    type="button"
+                    data-filter="all"
+                    class="filter-btn rounded-full border bg-slate-200 border-slate-300 px-4 py-2 text-sm font-medium transition hover:bg-slate-300"
+                >
+                    Todos los hábitos
+                </button>
+                <button 
+                    type="button"
+                    data-filter="pending"
+                    class="filter-btn rounded-full border bg-slate-200 border-slate-300 px-4 py-2 text-sm font-medium transition hover:bg-slate-300"
+                >
+                    Pendientes
+                </button>
+                <button 
+                    type="button"
+                    data-filter="done"
+                    class="filter-btn rounded-full border bg-slate-200 border-slate-300 px-4 py-2 text-sm font-medium transition hover:bg-slate-300"
+                >
+                    Completados
+                </button>
+            </div>
+        </section>
+
+        <!-- Lista de hábitos: se muestra la lista de habitos que el usuario ha creado, con opciones para marcar como completado o eliminar-->
+        <section class="mt-6">
+            <div id="habitList" class="space-y-3"></div>
+        </section>
     </main> 
-
-
-    
-    
-
-    <!-- Filtros -->
-    <div class="mb-4 space-x-2">
-        <button id="all" class="border px-2">Todos</button>
-        <button id="pending" class="border px-2">Pendientes</button>
-        <button id="done" class="border px-2">Completados</button>
-    </div>
-
-    <!-- Lista de hábitos -->
-    <div id="lista"></div>
-
     <script type="module" src="./js/app.js"></script>
 </body>
 </html>
