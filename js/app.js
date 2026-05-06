@@ -146,3 +146,23 @@ function handleFilterClick(event) {
     state.currentFilter = selectedFilter; // actualizamos el estado del filtro actual con el valor seleccionado
     render(); // renderizamos la lista de hábitos para mostrar los hábitos filtrados según el nuevo estado del filtro
 }
+
+// Maneja acciones sobre cada hábito (completar o eliminar)
+// Usa data-action y data-id para saber que boton se hizo click y sobre que hábito se hizo click
+function handleHabitAction(event) {
+    const button = event.target.clossest("[data-action]"); // buscamos el elemento más cercano al clic que tenga el atributo data-action
+    //  para identificar la acción a realizar
+
+    if (!button) {
+        return; // si no se hizo click en un botón con data-action, salimos de la función
+    }
+
+    const action = button.dataset.action; // obtenemos el valor de lo que se quiere hacer (completar o eliminar) del atributo data-action del botón
+    const habitId = button.dataset.id; // obtenemos el id del hábito sobre el que se hizo click del atributo data-id del botón
+
+    if (action === "toggle") {
+        toggleHabit(habitId); // si la acción es "toggle", llamamos a la función para cambiar el estado del hábito con el id proporcionado
+    } else if (action === "delete") {
+        deleteHabit(habitId); // si la acción es "delete", llamamos a la función para eliminar el hábito con el id proporcionado
+    }
+}
