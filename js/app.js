@@ -125,3 +125,24 @@ function deleteHabit(id) {
     saveHabits();
     render();
 }
+
+// Obtiene habitos filtrados según el estado del filtro actual
+function getFilteredHabits() {
+    if (state.currentFilter === "pending") {
+        return state.habits.filter((habit) => !habit.done); // si el filtro es "pending", retornamos solo los hábitos 
+        // que no están completados (done: false)
+    }
+    if (state.currentFilter === "done") {
+        return state.habits.filter((habit) => habit.done); // si el filtro es "done", retornamos solo los hábitos que están completados (done: true)
+    }
+
+    return state.habits; // si el filtro es "all", retornamos todos los hábitos sin filtrar
+}
+
+// Maneja el cambio del filtro al hacer click en los botones
+function handleFilterClick(event) {
+    const selectedFilter = event.target.dataset.filter; // obtenemos el valor del filtro seleccionado del atributo data-filter del botón clickeado
+
+    state.currentFilter = selectedFilter; // actualizamos el estado del filtro actual con el valor seleccionado
+    render(); // renderizamos la lista de hábitos para mostrar los hábitos filtrados según el nuevo estado del filtro
+}
