@@ -206,7 +206,7 @@ function renderFilterButtons() {
     elements.filterButtons.forEach((button) => {
         const isActive = button.dataset.filter === state.currentFilter; // verificamos si el filtro del botón coincide con el estado del filtro actual
 
-        button.classList.toggle("bg-green-900", isActive); // agregamos la clase "active" al botón si es el filtro activo, de lo contrario la removemos
+        button.classList.toggle("bg-blue-900", isActive); // agregamos la clase "active" al botón si es el filtro activo, de lo contrario la removemos
         button.classList.toggle("text-white", isActive); // agregamos la clase "text-white" al botón si es el filtro activo, de lo contrario la removemos
         button.classList.toggle("border-slate-900", !isActive); // agregamos la clase "bg-gray-200" al botón si no es el filtro activo, de lo contrario la removemos
     });
@@ -224,3 +224,70 @@ function renderHabitList() {
     elements.habitList.innerHTML = habits.map(getHabitTemplate).join(""); // si hay hábitos para mostrar, renderizamos cada hábito usando la función getHabitTemplate
     //  y unimos los resultados en una sola cadena HTML para mostrarla en el contenedor de la lista de hábitos
 }
+
+// Devuelve el template HTML para un hábito
+function getHabitTemplate(habit) {
+    const statusText = habit.done ? "Completado" : "Pendiente"; // determinamos el texto de estado del hábito según si está completado o pendiente
+    const statusClass = habit.done
+        ? "bg-green-100 text-green-800" 
+        : "bg-yellow-500 text-yellow-800"; // determinamos la clase de color del estado del hábito según si está completado o pendiente
+
+    const toggleText = habit.done ? "Marcar como pendiente" : "Marcar como completado"; // determinamos el texto del botón de toggle 
+    // según si el hábito está completado o pendiente
+
+    return `
+        <article class="rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-200">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2 class="text-lg font-semibold ${habit.done ? "line-through text-slate-400" : " text-slate-900"}">
+                         ${escapeHTML(habit.name)}
+                        </h2>
+
+                        <span class="rounded-full px-3 py-1 text-xs font-medium ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            data-action="toggle"
+                            data-id="${habit.id}"
+                            class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium transition hover:bg-slate-100"
+                        >
+                            ${toggleText}
+                        </button>
+
+                        <button
+                            type="button"
+                            data-action="delete"
+                            data-id="${habit.id}"
+                            class="rounded-xl  bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+    `
+}
+
+function getEmptyState() {
+    const messages = {
+        all: "Aún no tienes hábitos registrados. Agrega el primero desde el formulario.",
+        pending: "No tienes hábitos pendientes.",
+        done: "No tienes hábitos completados."
+    };
+
+    return `
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+            <p class="text-slate-600">
+                ${messages[state.currentFilter]}
+            </p>
+        </div>
+    `;
+
+}
+
