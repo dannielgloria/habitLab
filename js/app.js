@@ -166,3 +166,61 @@ function handleHabitAction(event) {
         deleteHabit(habitId); // si la acción es "delete", llamamos a la función para eliminar el hábito con el id proporcionado
     }
 }
+
+function addHabit(name, energy) {
+    const newHabit = { // se crea un objeto llamado habito que se guardara en un arreglo llamado
+        // habits dentro de el objeto state
+        id: Date.now(), // se genera un id único para el hábito usando la marca de tiempo actual convertida a cadena
+        name, // se asigna el nombre del hábito al campo name del objeto
+        energy, // se asigna la energía del hábito al campo energy del objeto
+        done: false, // se establece el estado inicial del hábito como no completado (done: false)
+        createdAt: new Date().toISOString() // se guarda la fecha de creación del hábito en formato ISO para poder ordenarlos por fecha si se desea
+        // la fecha en formato ISO es: "2024-06-01T12:00:00.000Z" donde "T" separa la fecha de la hora y "Z" indica que la hora está en formato UTC (Tiempo Universal Coordinado)
+    };
+    state.habits.push(newHabit);
+    console.log(`Hábito agregado: ${name} id ${newHabit.id}`); // mensaje de consola para confirmar que el hábito se ha agregado correctamente
+    saveHabits();
+    render();
+}
+
+// Renderiza toda la interfaz de la aplicación
+function render() {
+    renderSumary(); // renderizamos el resumen de hábitos (conteo total, pendientes y completados)
+    renderFilterButtons(); // renderizamos los botones de filtro para reflejar el estado del filtro actual
+    renderHabitList(); // renderizamos la lista de hábitos filtrados según el estado del filtro actual  
+}
+
+// Renderiza el resumen de hábitos o contador de html(conteo total, pendientes y completados)
+function renderSumary() {
+    const total = state.habits.length; // obtenemos el conteo total de hábitos
+    const pending = state.habits.filter((habit) => !habit.done).length; // obtenemos el conteo de hábitos pendientes (no completados)
+    const done = state.habits.filter((habit) => habit.done).length; // obtenemos el conteo de hábitos completados
+
+    elements.totalCount.textContent = total; // actualizamos el texto del elemento totalCount con el conteo total de hábitos
+    elements.pendingCount.textContent = pending; // actualizamos el texto del elemento pendingCount con el conteo de hábitos pendientes
+    elements.doneCount.textContent = done; // actualizamos el texto del elemento doneCount con el conteo de hábitos completados
+}
+
+// Renderiza los botones de filtro para reflejar el estado del filtro actual
+function renderFilterButtons() {
+    elements.filterButtons.forEach((button) => {
+        const isActive = button.dataset.filter === state.currentFilter; // verificamos si el filtro del botón coincide con el estado del filtro actual
+
+        button.classList.toggle("bg-green-900", isActive); // agregamos la clase "active" al botón si es el filtro activo, de lo contrario la removemos
+        button.classList.toggle("text-white", isActive); // agregamos la clase "text-white" al botón si es el filtro activo, de lo contrario la removemos
+        button.classList.toggle("border-slate-900", !isActive); // agregamos la clase "bg-gray-200" al botón si no es el filtro activo, de lo contrario la removemos
+    });
+}
+
+// Renderiza la lista de hábitos
+function renderHabitList() {
+    const habits = getFilteredHabits(); // obtenemos los hábitos filtrados según el estado del filtro actual
+
+    if (habits.length === 0) {
+        elements.habitList.innerHTML = getEmptyState(); // si no hay hábitos para mostrar, renderizamos un estado vacío con un mensaje y una imagen
+        return;
+    }
+
+    elements.habitList.innerHTML = habits.map(getHabitTemplate).join(""); // si hay hábitos para mostrar, renderizamos cada hábito usando la función getHabitTemplate
+    //  y unimos los resultados en una sola cadena HTML para mostrarla en el contenedor de la lista de hábitos
+}
