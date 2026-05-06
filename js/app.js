@@ -291,3 +291,28 @@ function getEmptyState() {
 
 }
 
+// Escapa texto ingresado por el usuario
+// Esto evita insertar HTML malicioso 
+function escapeHTML(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+// muestra mensajes del formulario
+function showMessage(message) {
+    elements.formMessage.textContent = message; // actualizamos el texto del elemento formMessage con el mensaje proporcionado
+    elements.formMessage.classList.remove("hidden"); // mostramos el mensaje eliminando la clase "hidden"
+}
+
+// oculta los mensajes del formulario
+function hideMessage() {
+    elements.formMessage.textContent = ""; // limpiamos el texto del elemento formMessage
+    elements.formMessage.classList.add("hidden"); // ocultamos el mensaje agregando la clase "hidden"
+}
+
+// Iniciamos la aplicación al cargar la página
+init();
