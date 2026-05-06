@@ -150,7 +150,7 @@ function handleFilterClick(event) {
 // Maneja acciones sobre cada hábito (completar o eliminar)
 // Usa data-action y data-id para saber que boton se hizo click y sobre que hábito se hizo click
 function handleHabitAction(event) {
-    const button = event.target.clossest("[data-action]"); // buscamos el elemento más cercano al clic que tenga el atributo data-action
+    const button = event.target.closest("[data-action]"); // buscamos el elemento más cercano al clic que tenga el atributo data-action
     //  para identificar la acción a realizar
 
     if (!button) {
@@ -170,7 +170,7 @@ function handleHabitAction(event) {
 function addHabit(name, energy) {
     const newHabit = { // se crea un objeto llamado habito que se guardara en un arreglo llamado
         // habits dentro de el objeto state
-        id: Date.now(), // se genera un id único para el hábito usando la marca de tiempo actual convertida a cadena
+        id: Date.now().toString(), // se genera un id único para el hábito usando la marca de tiempo actual convertida a cadena
         name, // se asigna el nombre del hábito al campo name del objeto
         energy, // se asigna la energía del hábito al campo energy del objeto
         done: false, // se establece el estado inicial del hábito como no completado (done: false)
