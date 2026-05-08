@@ -22,7 +22,8 @@ const elements = {
     filterButtons: document.querySelectorAll(".filter-btn"), // seleccionamos todos los botones para aplicar los filtros
     totalCount: document.querySelector("#totalCount"), // seleccionamos el elemento donde se mostrará el conteo total de hábitos
     pendingCount: document.querySelector("#pendingCount"), // seleccionamos el elemento donde se mostrará el conteo de hábitos pendientes
-    doneCount: document.querySelector("#doneCount") // seleccionamos el elemento donde se mostrará el conteo de hábitos completados
+    doneCount: document.querySelector("#doneCount"), // seleccionamos el elemento donde se mostrará el conteo de hábitos completados
+    deleteAllHabits: document.querySelector("#deleteAllHabits") // seleccionamos el botón para eliminar todos los hábitos
 }
 
 // Inicializar la aplicación
@@ -44,6 +45,8 @@ function bindEvents() {
         button.addEventListener("click", handleFilterClick); // evento que escucha si se hace click en alguno de los botones de filtro para cambiar 
         // el estado del filtro actual
     })
+
+    elements.deleteAllHabits.addEventListener("click", handleDeleteAllHabits); // evento que escucha si se hace click en el botón de eliminar todos los hábitos para limpiar la lista
 
     // Delegacion de eventos:
     // En lugar de usar un evenyo onclick (es decir que se ejecuta al hacer click en el botón) en el html, 
@@ -313,6 +316,29 @@ function hideMessage() {
     elements.formMessage.textContent = ""; // limpiamos el texto del elemento formMessage
     elements.formMessage.classList.add("hidden"); // ocultamos el mensaje agregando la clase "hidden"
 }
+
+function handleDeleteAllHabits() {
+    if (state.habits.length === 0) {
+        showMessage("No hay hábitos para eliminar."); // mostramos un mensaje si no hay hábitos para eliminar
+        return;
+    }
+
+    const confirmDelete = confirm("¿Estás seguro de que quieres eliminar todos los hábitos? Esta acción no se puede deshacer."); // mostramos una confirmación antes de eliminar todos los hábitos
+
+    if (!confirmDelete) {
+        return;
+    }
+
+    deleteAllHabits(); // llamamos a la función para eliminar todos los hábitos
+    showMessage("Todos los hábitos han sido eliminados."); // mostramos un mensaje confirmando que todos los hábitos han sido eliminados
+}
+
+function deleteAllHabits() {
+    state.habits = []; // vaciamos el array de hábitos en el estado
+    saveHabits(); // guardamos el estado actualizado en el localStorage
+    render(); // renderizamos la interfaz para reflejar que no hay hábitos en la lista
+}
+
 
 // Iniciamos la aplicación al cargar la página
 init();
