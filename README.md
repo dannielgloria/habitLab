@@ -47,4 +47,4 @@ habit-lab/
 ```
 
 Para poder hacer uso de este mini proyecto funcional da click al siguiente link
-[habitLab.com]()
+[habitLab.com](https://dannielgloria.github.io/habitLab/)
